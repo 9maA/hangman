@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+  <title>canvas-elementet</title>
+  <meta charset="UTF-8">
+  <style>
+    innpakning {
+		width: 600px;
+		margin: auto;
+	}
+    canvas {
+      background-color: white;
+    }
+	input[type="text"]{
+		width: 30%;
+	}
+  </style>
+</head>
+<body>
+<div class="innpakning">
+
+	<h1> Hangman </h1>
+	
+	<p id="sjanserIgjen"> Antall sjanser igjen:</p>
+	<p id="riktigeBokstaver"> Dine bokstaver:</p>
+	<p id="brukteBokstaver"> Gjettede bokstaver:</p>
+	
+	<canvas id="mittCanvas" width="600" height="400" id="mittCanvas"></canvas>
+	
+	<p id="mottabokstav">
+		<input type="text" name="bokstav" id="bokstav" maxlength = "1">
+		<button id="knapp"> Test bokstav </button>
+		<button id="knapp2"> Skru av lyd </button>
+		<audio id="lyd" controls>
+			<source src="Melodi 2.mp3" type="audio/mp3">
+		</audio>
+		<audio src="riktig.mp3" id="riktig" type="audio/mp3">
+		<audio src="feil.mp3" id="feil" type="audio/mp3">
+	</p>
+
+</div>
+
+</body>
+<script>
+  var canvas = document.querySelector("#mittCanvas");
+  var ctx = canvas.getContext("2d");
+  
+  function tegnGalge(){
+	ctx.beginPath();
+	ctx.moveTo(100,320);
+	ctx.lineTo(100,300);
+	ctx.lineTo(500,300);
+	ctx.lineTo(500,320);
+	ctx.moveTo(200,300);
+	ctx.lineTo(200,20);
+	ctx.lineTo(350,20);
+	ctx.lineTo(350,50);
+	ctx.lineWidth = 5;
+	ctx.stroke();
+  }
+  
+  function tegnHode(){
+	ctx.beginPath();
+	ctx.arc(350,75,25,0,Math.PI*2);
+	ctx.stroke();
+  }
+  
+  function tegnKropp(){
+	ctx.beginPath();
+	ctx.moveTo(350, 100);
+	ctx.lineTo(350, 225);
+	ctx.stroke();
+  }
+  
+  function tegnVenstreArm(){
+	ctx.beginPath();
+	ctx.moveTo(350, 125);
+	ctx.lineTo(300, 175);
+	ctx.stroke();
+  }
+  
+  function tegnHoyreArm(){
+	ctx.beginPath();
+	ctx.moveTo(350, 125);
+	ctx.lineTo(400, 175);
+	ctx.stroke();
+  }
+  
+  function tegnVenstreBein(){
+	ctx.beginPath();
+	ctx.moveTo(350, 225);
+	ctx.lineTo(300, 275);
+	ctx.stroke();
+  }
+  
+  function tegnHoyreBein(){
+	ctx.beginPath();
+	ctx.moveTo(350, 225);
+	ctx.lineTo(400, 275);
+	ctx.stroke();
+  }
+  
+  var tekstfeltEl = document.querySelector("#bokstav");
+  var sjanserIgjenEl = document.querySelector("#sjanserIgjen");
+  var riktigeBokstaverEl = document.querySelector("#riktigeBokstaver");
+  var brukteBokstaverEl = document.querySelector("#brukteBokstaver");
+  var knappEl = document.querySelector("#knapp");
+  var knapp2El = document.querySelector("#knapp2");
+  var mittLydklippEl = document.querySelector("#lyd");
+  var riktigEl = document.querySelector("#riktig");
+  var feilEl = document.querySelector("#feil");
+  
+  knappEl.addEventListener("click", mottaBokstav);
+  knapp2El.addEventListener("click", stopp);
+  
+  function stopp(){
+	mittLydklippEl.pause();
+  }
+  
+  var byer = ["PARIS", "MADRID", "BERLIN", "ROMA"];
+  var tall = Math.floor(Math.random() * byer.length);
+  var teller = 0;
+  var losningsord = byer[tall];
+  var brukteBokstaver = [];
+  var riktigeBokstaver = ["_", "_", "_", "_", "_", "_"];
+  
+  var antallSjanser = 6;
+  
+  tegnGalge();
+  
+  riktigeBokstaverEl.innerHTML = "Riktige bokstaver: " + riktigeBokstaver;
+  
+  function mottaBokstav(){
+	console.log("Du trykket på knappen.");
+  
+  var gjettetBokstav = tekstfeltEl.value;
+  gjettetBokstav = gjettetBokstav.toUpperCase();
+
+  if(brukteBokstaver.indexOf(gjettetBokstav) === -1){
+	brukteBokstaver.push(gjettetBokstav);
+	
+	if(losningsord.indexOf(gjettetBokstav) === -1){
+		antallSjanser -= 1;
+		feilEl.play();
+	}
+	else{
+		for(var i = 0; i < losningsord.length; i++){
+			if(losningsord[i] === gjettetBokstav){	
+				riktigeBokstaver[i] = gjettetBokstav;
+				teller++;
+				riktigEl.play();
+			}
+		}
+	}
+  }
+  else{
+	alert("Bokstaven er allerede gjettet!");
+  }
+  
+  brukteBokstaver.sort();
+  tekstfeltEl.value = "";
+  
+  brukteBokstaverEl.innerHTML = "Brukte bokstaver: " + brukteBokstaver;
+  riktigeBokstaverEl.innerHTML = "Riktige bokstaver: " + riktigeBokstaver;
+  sjanserIgjenEl.innerHTML = "Antall sjanser igjen: " + antallSjanser;
+  
+  if(antallSjanser === 5){
+	tegnHode();
+  }
+  else if(antallSjanser === 4){
+	tegnKropp();
+  }
+  else if(antallSjanser === 3){
+	tegnVenstreArm();
+  }
+  else if(antallSjanser === 2){
+	tegnHoyreArm();
+  }
+  else if(antallSjanser === 1){
+	tegnVenstreBein();
+  }
+  else if(antallSjanser === 0){
+	tegnHoyreBein();
+	alert("Du tapte!");
+  }
+  if(teller === losningsord.length){
+	alert("You Win");
+  }
+}
+  
+</script>
+</html>
